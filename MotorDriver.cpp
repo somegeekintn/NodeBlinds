@@ -166,7 +166,7 @@ motor_state MotorDriver::state() {
         state = abs(mTargetPosition) > abs(mCurPosition) ? closing : opening;
     }
     else {
-        state = abs(mCurPosition) > (CLOSED_TARGET_ANGLE / 2.0) ? closed : open;
+        state = abs(degreesFromPosition(mCurPosition)) > (CLOSED_TARGET_ANGLE / 2.0) ? closed : open;
     }
 
     return state;
