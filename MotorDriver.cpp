@@ -21,13 +21,17 @@
 
 #define SLEEP               LOW
 #define WAKE                HIGH
-#define STEP_DEGREES        (360.0 / 2048.0)
-#define CLOSED_TARGET_ANGLE 100.0
-#define CLOSED_TARGET_POS   (CLOSED_TARGET_ANGLE / STEP_DEGREES)
-#define CLOSED_POS          (45.0 / STEP_DEGREES)
+#define STEP_DEGREES        (1.0 / (2048.0 / 360.0))
+#define CLOSED_TARGET_ANGLE 72.0
 #define OPEN_TARGET_ANGLE   0.0
-#define OPEN_TARGET_POS     (OPEN_TARGET_ANGLE / STEP_DEGREES)
-#define OPEN_POS            (10.0 / STEP_DEGREES)
+
+// The blinds are controlled by a string wound around a cylinder (in my case a cylinder with
+// flat bits but we just pretend it's a cyclinder) so we can determine the amount that the
+// blinds raise / lower by examining the % of circumference travels and using that as one leg
+// of a right triangle to translate it to degrees traveled at the blinds.
+
+#define BARREL_CIRC         (28.0 * M_PI)
+#define BLINDS_RAD          26.0
 
 MotorDriver::MotorDriver(int resolution, int dir_pin, int step_pin, int sleep_pin) { 
     mResolution = resolution;
@@ -86,9 +90,19 @@ void MotorDriver::setTargetPosition(int position) {
 }
 
 int MotorDriver::positionFromDegrees(int degrees) {
-    float position = (float)degrees / STEP_DEGREES;
+    float rads = ((float)degrees / 180.0) * M_PI;
+    float travel = sin(rads) * BLINDS_RAD;
+    float position = (travel / BARREL_CIRC * 360.0) / STEP_DEGREES;
 
-    return position < 0.0 ? floor(position) : ceil(position);
+    return round(position);
+}
+
+int MotorDriver::degreesFromPosition(int position) {
+    float angleB = (float)position * STEP_DEGREES;
+    float travel = angleB / 360.0 * BARREL_CIRC;
+    float degrees = asin(travel / BLINDS_RAD) * 180.0 / M_PI;
+
+    return round(degrees);
 }
 
 void MotorDriver::service() {
@@ -134,7 +148,7 @@ int MotorDriver::currentPosition() {
 }
 
 int MotorDriver::currentAngle() {
-    return (int)((float)mCurPosition * STEP_DEGREES);
+    return degreesFromPosition(mCurPosition);
 }
 
 int MotorDriver::targetPosition() {
@@ -142,7 +156,7 @@ int MotorDriver::targetPosition() {
 }
 
 int MotorDriver::targetAngle() {
-    return (int)((float)mTargetPosition * STEP_DEGREES);
+    return degreesFromPosition(mTargetPosition);
 }
 
 motor_state MotorDriver::state() {
@@ -152,7 +166,7 @@ motor_state MotorDriver::state() {
         state = abs(mTargetPosition) > abs(mCurPosition) ? closing : opening;
     }
     else {
-        state = abs(mCurPosition) > CLOSED_POS ? closed : open;
+        state = abs(mCurPosition) > (CLOSED_TARGET_ANGLE / 2.0) ? closed : open;
     }
 
     return state;

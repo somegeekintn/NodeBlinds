@@ -21,6 +21,7 @@ class MotorDriver {
         void            setTargetAngle(int degrees);
         void            setTargetPosition(int position);
         int             positionFromDegrees(int degrees);
+        int             degreesFromPosition(int position);
         void            service();
 
         bool            positionRestored();
