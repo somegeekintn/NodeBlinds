@@ -1,0 +1,249 @@
+* {
+    list-style: none;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+	background: #ddd;
+    font-family: Arial, 'Open Sans', sans-serif;
+}
+
+p {
+    margin: 16px 0;
+}
+
+progress {
+	display: block;
+	width: 100%;
+	margin: 2em auto;
+	padding: 2px;
+	border: 0 none;
+	background: #888;
+	border-radius: 14px;
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+}
+
+progress::-moz-progress-bar {
+    border-radius: 12px;
+    background: #222;
+    /* box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3); */
+}
+
+/* webkit */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    progress {
+        height: 25px;
+    }
+}
+progress::-webkit-progress-bar {
+    background: transparent;
+}
+progress::-webkit-progress-value {
+    border-radius: 12px;
+    background: #FFF;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);
+}
+
+.mono {
+	font-family: monospace;
+    padding-bottom: 8px;
+}
+
+.container {
+    display: grid;
+    grid-template-areas: 'menu header' 'menu content';
+    grid-template-columns: 192px auto;
+    grid-template-rows: min-content 1fr;
+    min-height: 100vh;
+    gap: 10px;
+    padding: 0px;
+}
+
+.sidebar {
+    grid-area: menu;
+    background: rgb(5, 68, 104);
+}
+
+.header {
+    grid-area: header;
+    display: flex;
+    justify-content: center;
+    padding-top: 1em;
+}
+
+.content {
+    grid-area: content;
+    padding: 1em;
+}
+
+.sidebar ul li a {
+	display: block;
+	padding: 12px 16px;
+	border-bottom: 1px solid #10558d;
+	color: rgb(241, 237, 237);
+	font-size: 16px;
+	position: relative;
+}
+
+.sidebar ul li a .icon {
+	color: #dee4ec;
+	display: inline-block;
+	padding-right: 4px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active{
+    color: #0c7db1;
+
+    background:white;
+    border-right: 2px solid rgb(5, 68, 104);
+}
+
+.sidebar ul li a:hover .icon,
+.sidebar ul li a.active .icon {
+    color: #0c7db1;
+}
+
+.form-content {
+    display: flex;
+    justify-content: center;
+}
+
+.form-container {
+    min-width: 380px;
+}
+
+.button-send {
+	width: 100%;
+	background: #bbb;
+	line-height: 3em;
+	font-weight: bold;
+	color: #111;
+	border-radius: 4px;
+	border: 1px solid #000;
+}
+
+.button-send:hover {
+	background-color: #999;
+}
+
+.button-send:active {
+    background-color: #aaa;
+    box-shadow: 1px 1px #666;
+    transform: translateY(4px);
+}
+
+.button-send:disabled {
+	background-color: #ccc;
+	color: #888;
+}
+
+.switch-o {
+    cursor: pointer;
+    height: 25px;
+    font-size: 15px;
+    background: none;
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    width: 50%;
+    color: white;
+    background: black;
+}
+
+.switch-o.selected {
+	background-color: white;
+	color: black;
+	box-shadow: inset 0px 0px 2px 2px #60c0ff;
+}
+.switch-o.left {
+    border-radius: 14px 0px 0px 14px;
+    margin-right: -3px;
+}
+
+.switch-o.right {
+    border-radius: 0px 14px 14px 0px;
+    margin-left: -3px;
+}
+
+.progress {
+    width: 100%;
+    height: 8px;
+    background: #e1e4e8;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress .progress-bar {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #ffd33d, #ea4aaa 17%, #b34bff 34%, #01feff 51%, #ffd33d 68%, #ea4aaa 85%, #b34bff);
+    background-size: 300% 100%;
+    -webkit-animation: progress-animation 2s linear infinite;
+    animation: progress-animation 2s linear infinite;
+}
+
+.input-file {
+    width: 100%;
+    border: 0px transparent;
+    padding: 4px 4px 4px 4px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 7px;
+    background-color: rgb(255 255 255);
+}
+
+.additional-info {
+    height: 67px;
+}
+
+.additional-info h3 {
+    padding: 18px 0;
+}
+
+.firmware-image {
+	background-image: url(firmware_icon.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 36px;
+	width: 36px;
+	margin-right: 8px;
+}
+
+.littlefs-image {
+	background-image: url(littleFS_logo.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 36px;
+	width: 36px;
+	margin-right: 8px;
+}
+
+.wifi-image {
+	background-image: url(wifi_logo.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 52px;
+	width: 52px;
+	margin-right: 8px;
+}
+
+@-webkit-keyframes progress-animation {
+    0% {
+        background-position: 100%;
+    }
+    100% {
+        background-position: 0;
+    }
+}
+
+@keyframes progress-animation {
+    0% {
+        background-position: 100%;
+    }
+    100% {
+        background-position: 0;
+    }
+}

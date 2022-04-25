@@ -1,0 +1,75 @@
+<!DOCTYPE html><html>
+<head>
+    <title>LittleFS File List</title>
+    <link Content-Type="text/css" href="style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="/index.html"><span class="icon"><i class="fas fa-home"></i></span><span class="item">Home</span></a></li>
+                <li><a href="#" class="active"><span class="icon"><i class="fas fa-folder-tree"></i></span><span class="item">Files</span></a></li>
+                <li><a href="/update.html"><span class="icon"><i class="fas fa-upload"></i></span><span class="item">OTA Update</span></a></li>
+                <li><a href="/minup.html"><span class="icon"><i class="fas fa-file-arrow-up"></i></span><span class="item">Upload (basic)</span></a></li>
+            </ul>
+        </div>
+
+        <div class="header">
+            <div class="littlefs-image"></div>
+            <h1>LittleFS File List</h1>
+        </div>
+
+        <div class="content">
+            <div class="mono" id="fslist"></div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener("load", function () {
+            fetch('/$fs')
+                .then(function (result) { return result.json(); })
+                .then(function (e) {
+                    var listObj = document.querySelector('#fslist');
+                    e.forEach(function (f) {
+                        var entry = document.createElement("div");
+                        var nameObj = document.createElement("a");
+                        var timeObj = document.createElement("span");
+                        var delObj = document.createElement("span");
+
+                        nameObj.href = '/' + f.name;
+                        nameObj.innerText = '/' + f.name;
+                        entry.appendChild(nameObj)
+                        entry.appendChild(document.createTextNode(' (' + f.size + ') '));
+
+                        timeObj.innerText = (new Date(f.time * 1000)).toLocaleString();
+                        entry.appendChild(timeObj)
+                        entry.appendChild(document.createTextNode(" "));
+
+                        delObj.className = 'deleteFile';
+                        delObj.innerText = ' [delete]';
+                        entry.appendChild(delObj)
+
+                        listObj.appendChild(entry)
+                    });
+                })
+                .catch(function (err) {
+                    window.alert(err);
+                });
+        });
+
+        window.addEventListener("click", function (evt) {
+            var t = evt.target;
+            if (t.className === 'deleteFile') {
+                var fname = t.parentElement.innerText.split(' ')[0];
+
+                if (window.confirm("Delete " + fname + " ?")) {
+                    fetch(fname, { method: 'DELETE' })
+                        .then(function (result) { document.location.reload(false); })
+                }
+            };
+        });
+    </script>
+</body>
+</html>

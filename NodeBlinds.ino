@@ -3,25 +3,27 @@
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <ArduinoOTA.h>
+#include <LittleFS.h>
 #include <deque>
 
+#include "config.h"
 #include "Consts.h"
 #include "MotorDriver.h"
+#include "ServerMgr.h"
 
 WiFiClient      gWifiClient;
+ServerMgr       gWebServer;
 PubSubClient    gMQTTClient(gWifiClient);
 char            gMsgBuffer[MSG_BUF_LEN];
 unsigned long   gMQTTConnectTime = 0;
-unsigned int    gOTALastPercent = 0;
 
 MotorDriver     gStepperL(STEPPER_STEPS_PER_REV, BLIND_1_DIR, BLIND_1_STEP, BLIND_1_SLEEP);
 MotorDriver     gStepperR(STEPPER_STEPS_PER_REV, BLIND_2_DIR, BLIND_2_STEP, BLIND_2_SLEEP);
 
 void setup_wifi() {
-    Serial.print("Connecting to "); Serial.println(cSSID);
+    Serial.print("Connecting to "); Serial.println(kSSID);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(cSSID, cWifiPass);
+    WiFi.begin(kSSID, kWIFI_PASS);
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -30,53 +32,12 @@ void setup_wifi() {
 
     Serial.println("");
     Serial.print("WiFi connected @ : "); Serial.println(WiFi.localIP());
-}
 
-void setup_ota() {
-    ArduinoOTA.setHostname(cMQTTClient);
-
-    ArduinoOTA.onStart([]() {
-        String type;
-        if (ArduinoOTA.getCommand() == U_FLASH) {
-            type = "sketch";
-        } else { // U_FS
-            type = "filesystem";
-        }
-
-        // NOTE: if updating FS this would be the place to unmount FS using FS.end()
-        Serial.println("Start updating " + type);
-    });
-    ArduinoOTA.onEnd([]() {
-        Serial.println("\nEnd");
-    });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        unsigned int percent = ((progress / (total / 100)) / 5) * 5;
-
-        if (percent != gOTALastPercent) {
-            Serial.printf("Progress: %u%%\r", percent);
-            gOTALastPercent = percent;
-        }
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-        Serial.printf("Error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR) {
-            Serial.println("Auth Failed");
-        } else if (error == OTA_BEGIN_ERROR) {
-            Serial.println("Begin Failed");
-        } else if (error == OTA_CONNECT_ERROR) {
-            Serial.println("Connect Failed");
-        } else if (error == OTA_RECEIVE_ERROR) {
-            Serial.println("Receive Failed");
-        } else if (error == OTA_END_ERROR) {
-            Serial.println("End Failed");
-        }
-    });
-
-    ArduinoOTA.begin();
+    gWebServer.setup();
 }
 
 void setup_mqtt() {
-    gMQTTClient.setServer(cMQTTServer, 1883);
+    gMQTTClient.setServer(kMQTT_SERVER, 1883);
     gMQTTClient.setCallback(mqttCallback);
 }
 
@@ -242,7 +203,7 @@ void mqttReconnect() {
     while (!gMQTTClient.connected()) {
         Serial.print("Attempting MQTT connection...");
 
-        if (gMQTTClient.connect(cMQTTClient, cMQTTUser, cMQTTPass, "home/blinds/lr/avail", 2, false, "offline")) {
+        if (gMQTTClient.connect(kMQTT_CLIENT, kMQTT_USER, kMQTT_PASS, "home/blinds/lr/avail", 2, false, "offline")) {
             gMQTTConnectTime = millis();
             Serial.print("MQTT connected @ "); Serial.println(gMQTTConnectTime);
             gMQTTClient.publish("home/blinds/lr/avail", "online", true);
@@ -259,11 +220,13 @@ void mqttReconnect() {
 
 void setup() {
     Serial.begin(115200);
-    Serial.println();
+
+    if (!LittleFS.begin()) {
+        Serial.print(F("Failed to mount filesystem (LittleFS)"));
+    }
     
     setup_motors();
     setup_wifi();
-    setup_ota();
     setup_mqtt();
 }
 
@@ -322,7 +285,7 @@ void loop() {
     }
 
     gMQTTClient.loop();
-    ArduinoOTA.handle();
+    gWebServer.loop();
     
     serviceSteppers();
 }

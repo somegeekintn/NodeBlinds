@@ -1,0 +1,62 @@
+<!DOCTYPE html><html>
+<head>
+    <title>ESP Monitor</title>
+    <link Content-Type="text/css" href="style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="#" class="active"><span class="icon"><i class="fas fa-home"></i></span><span class="item">Home</span></a></li>
+                <li><a href="/files.html"><span class="icon"><i class="fas fa-folder-tree"></i></span><span class="item">Files</span></a></li>
+                <li><a href="/update.html"><span class="icon"><i class="fas fa-upload"></i></span><span class="item">OTA Update</span></a></li>
+                <li><a href="/minup.html"><span class="icon"><i class="fas fa-file-arrow-up"></i></span><span class="item">Upload (basic)</span></a></li>
+            </ul>
+        </div>
+
+        <div class="header">
+            <div class="wifi-image"></div>
+            <h1 id="home_title">ESP Monitor</h1>
+        </div>
+
+        <div class="content">
+            <div>System Info</div>
+            <div id="sysinfo" class="mono"></div>
+            <div>Rest Services:</div>
+            <ul>
+                <li><a href="/$sysinfo">/$sysinfo</a> - Some system level information</a></li>
+                <li><a href="/$fs">/$fs</a> - Array of all files</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener("load", function () {
+            fetch('/$sysinfo')
+                .then(function (result) { return result.json(); })
+                .then(function (json) {
+                    var listObj = document.querySelector('#sysinfo');
+                    var titleObj = document.querySelector('#home_title');
+                    var project = json["project"];
+
+                    if (project) {
+                        title = document.querySelector('#home_title')
+                        title.innerHTML = project + ": ESP Monitor";
+                    }
+
+                    Object.entries(json).forEach(function ([key, value]) {
+                        var entry = document.createElement("div");
+
+                        entry.innerHTML = key + ": " + value;
+                        listObj.appendChild(entry)
+                    });
+                })
+                .catch(function (err) {
+                    window.alert(err);
+                });
+        });
+    </script>
+    </body>
+</html>
