@@ -1,7 +1,7 @@
 # NodeBlinds
 
 ESP2866 (NodeMCU) project to control some hard to reach blinds communicating over MQTT managed by [Home Assistant](https://www.home-assistant.io/). 
-Inspired by [this project at The Hook Up](https://www.thesmarthomehookup.com/automated-motorized-window-blinds-horizontal-blinds/).
+Inspired by [this project at The Hook Up](https://www.thesmarthomehookup.com/automated-motorized-window-blinds-horizontal-blinds/). See also [the github repo](https://github.com/thehookup/Motorized_MQTT_Blinds) for that project.
 
 My version controls two sets of blinds separately and I probably should have done a better job selecting GPIOs. 
 I would avoid using <code>D4</code> if I had it to do again.
